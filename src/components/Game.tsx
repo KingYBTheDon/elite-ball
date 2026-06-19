@@ -272,12 +272,12 @@ export function Game({ mode }: { mode: ModeKey }) {
               autoCorrect="off"
               autoCapitalize="off"
               spellCheck={false}
-              className="flex-1 rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 outline-none placeholder:text-neutral-600 focus:border-[var(--accent)]/60 focus:bg-white/[0.07] transition disabled:opacity-50"
+              className="min-w-0 flex-1 rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 outline-none placeholder:text-neutral-600 focus:border-[var(--accent)]/60 focus:bg-white/[0.07] transition disabled:opacity-50"
             />
             <button
               type="submit"
               disabled={loading || !prompt || result?.valid}
-              className="btn-accent rounded-xl px-5 py-2.5"
+              className="btn-accent shrink-0 rounded-xl px-5 py-2.5"
             >
               {loading ? "…" : "Guess"}
             </button>
