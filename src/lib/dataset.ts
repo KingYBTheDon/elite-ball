@@ -111,3 +111,27 @@ export function randomPrompt(mode: ModeKey = "modern"): Prompt {
 export function promptCount(mode?: ModeKey): number {
   return mode ? poolByMode[mode].length : ids.length;
 }
+
+// Flat list of EVERY player (with any aliases) for the typeahead. It spans the
+// whole league on purpose — suggesting from the current roster would reveal the
+// answers, but suggesting from everyone only helps with spelling/recall.
+export interface PlayerEntry {
+  name: string;
+  alt?: string[];
+}
+let playerList: PlayerEntry[] | null = null;
+export function allPlayers(): PlayerEntry[] {
+  if (playerList) return playerList;
+  const seen = new Set<string>();
+  const list: PlayerEntry[] = [];
+  for (const id of Object.keys(players)) {
+    const { name } = players[id];
+    if (seen.has(name)) continue; // collapse rare duplicate display names
+    seen.add(name);
+    const alt = ALIASES[id];
+    list.push(alt ? { name, alt } : { name });
+  }
+  list.sort((a, b) => a.name.localeCompare(b.name));
+  playerList = list;
+  return list;
+}
