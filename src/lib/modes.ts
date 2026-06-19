@@ -1,17 +1,19 @@
 // Game-mode metadata. Pure constants (no fs/json), safe to import from client
 // components and the server data layer alike.
 
+// NOTE: the object keys (modern/classic) are internal — they drive the /play
+// URLs and saved scores, so they stay put. Only the display `label` changed.
 export const MODES = {
   modern: {
-    label: "Modern",
+    label: "Classic",
     sub: "’90s to now",
     blurb: "Mostly names you’ll recognise.",
     minDecade: 1990,
   },
   classic: {
-    label: "Classic",
+    label: "Historic",
     sub: "’60s to now",
-    blurb: "Six decades back. The hard one.",
+    blurb: "Ultimate Elite Ball Knowledge.",
     minDecade: 1960,
   },
 } as const;

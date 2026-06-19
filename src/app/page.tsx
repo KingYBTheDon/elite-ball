@@ -27,8 +27,8 @@ export default function Home() {
             Knowledge
           </h1>
           <p className="text-[var(--muted)] mt-4 text-[15px] leading-relaxed max-w-xs mx-auto">
-            Name the most obscure player who actually suited up for a given team
-            in a given decade. The more forgotten the guy, the better you score.
+            Test your ball knowledge. You get a team and a decade, and you name
+            the most forgotten NBA player who actually played there.
           </p>
         </header>
 
@@ -37,7 +37,7 @@ export default function Home() {
             <Link
               key={key}
               href={`/play/${key}`}
-              className="group flex items-center justify-between rounded-[1.4rem] border border-[var(--hairline)] bg-[var(--card)] backdrop-blur px-6 py-5 transition duration-200 hover:border-[var(--accent)]/40 hover:bg-white/[0.05]"
+              className="group card-hover flex items-center justify-between rounded-[1.4rem] border border-[var(--hairline)] bg-[var(--card)] backdrop-blur px-6 py-5 hover:border-[var(--accent)]/45 hover:bg-white/[0.05] hover:shadow-2xl hover:shadow-black/30"
             >
               <div>
                 <p className="text-xl font-semibold tracking-tight flex items-baseline gap-2">

@@ -174,7 +174,7 @@ export function Game({ mode }: { mode: ModeKey }) {
           <button
             type="submit"
             disabled={loading || !prompt || result?.valid}
-            className="rounded-xl bg-[var(--accent)] text-black font-semibold hover:brightness-110 active:scale-[0.98] px-5 py-2.5 transition disabled:opacity-40 disabled:brightness-100"
+            className="btn-accent rounded-xl px-5 py-2.5"
           >
             {loading ? "…" : "Guess"}
           </button>
@@ -212,7 +212,7 @@ export function Game({ mode }: { mode: ModeKey }) {
         {result?.valid ? (
           <button
             onClick={nextAfterReveal}
-            className="w-full rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 py-2.5 font-medium transition"
+            className="btn-ghost w-full rounded-xl py-2.5 font-medium"
           >
             {answers.length + 1 >= ROUNDS_PER_GAME ? "See results →" : "Next round →"}
           </button>
@@ -341,13 +341,13 @@ function Results({
       <div className="mt-4 flex gap-2">
         <button
           onClick={onPlayAgain}
-          className="flex-1 rounded-xl bg-[var(--accent)] text-black hover:brightness-110 active:scale-[0.98] py-2.5 font-semibold transition"
+          className="btn-accent flex-1 rounded-xl py-2.5"
         >
           Play again
         </button>
         <Link
           href="/"
-          className="flex-1 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 py-2.5 font-medium transition text-center"
+          className="btn-ghost flex-1 rounded-xl py-2.5 font-medium text-center"
         >
           Home
         </Link>

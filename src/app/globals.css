@@ -5,6 +5,7 @@
   --foreground: #ededef;
   --muted: #8a8a93;
   --accent: #ff6a2b;
+  --accent-rgb: 255, 106, 43;
   --card: rgba(255, 255, 255, 0.025);
   --hairline: rgba(255, 255, 255, 0.08);
 }
@@ -25,10 +26,12 @@ body {
   font-family:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui,
     Roboto, Helvetica, Arial, sans-serif;
-  /* Two soft glows — warm up top, a cool counter-light low-left — for depth. */
+  /* Layered glows for depth: a strong warm wash up top, a cool counter-light
+     low-left, and a faint warm echo bottom-right to balance it. */
   background-image:
-    radial-gradient(100% 60% at 50% -8%, rgba(255, 106, 43, 0.1) 0%, transparent 60%),
-    radial-gradient(70% 50% at 0% 100%, rgba(70, 90, 160, 0.07) 0%, transparent 60%);
+    radial-gradient(120% 75% at 50% -12%, rgba(255, 106, 43, 0.22) 0%, rgba(255, 106, 43, 0.06) 34%, transparent 64%),
+    radial-gradient(85% 60% at -5% 105%, rgba(84, 104, 190, 0.16) 0%, transparent 58%),
+    radial-gradient(70% 55% at 108% 102%, rgba(255, 106, 43, 0.08) 0%, transparent 55%);
   background-attachment: fixed;
   min-height: 100vh;
 }
@@ -62,5 +65,76 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .rise {
     animation: none;
+  }
+}
+
+/* Frosted, semi-transparent primary button — accent over blur, lifts on hover. */
+.btn-accent {
+  background: rgba(var(--accent-rgb), 0.85);
+  color: #120803;
+  font-weight: 600;
+  border: 1px solid rgba(var(--accent-rgb), 0.5);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px -12px rgba(255, 106, 43, 0.55) !important;
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.btn-accent:hover:not(:disabled) {
+  background: rgba(var(--accent-rgb), 0.95);
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 34px -10px rgba(255, 106, 43, 0.7) !important;
+}
+.btn-accent:active:not(:disabled) {
+  transform: translateY(0) scale(0.985);
+}
+.btn-accent:disabled {
+  opacity: 0.4;
+  box-shadow: none;
+}
+
+/* Frosted ghost button — translucent white over blur. */
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--hairline);
+  backdrop-filter: blur(10px);
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.09);
+  transform: translateY(-1px);
+}
+.btn-ghost:active {
+  transform: translateY(0) scale(0.985);
+}
+
+/* Tactile card lift, shared by the home cards and panels. */
+.card-hover {
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-accent,
+  .btn-ghost,
+  .card-hover {
+    transition: none;
+  }
+  .btn-accent:hover,
+  .btn-ghost:hover,
+  .card-hover:hover {
+    transform: none;
   }
 }
