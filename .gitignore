@@ -36,6 +36,11 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Raw Basketball-Reference CSVs (pipeline inputs, ~31MB). The app only needs the
+# generated JSON in src/data/generated, which IS committed. Keep these locally to
+# re-run `npm run data:import`; re-download from Kaggle if you ever lose them.
+/data/manual
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

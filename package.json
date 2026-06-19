@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "data:import": "node scripts/pipeline/import-manual.mjs",
+    "data:fame": "node scripts/pipeline/fetch-pageviews.mjs",
+    "data:seasons": "node scripts/pipeline/fetch-seasons.mjs",
+    "data:build": "node scripts/pipeline/build-dataset.mjs",
+    "refresh": "npm run data:import && npm run data:fame",
+    "refresh:auto": "npm run data:seasons && npm run data:build && npm run data:fame"
   },
   "dependencies": {
     "next": "16.2.9",
