@@ -7,7 +7,7 @@ export const MODES = {
   modern: {
     label: "Classic",
     sub: "’90s to now",
-    blurb: "Mostly names you’ll recognise.",
+    blurb: "",
     minDecade: 1990,
   },
   classic: {

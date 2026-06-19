@@ -12,7 +12,7 @@ export default async function PlayPage({
   if (!isMode(mode)) notFound();
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-4 py-10">
+    <main className="min-h-dvh flex flex-col items-center justify-center px-4 py-8">
       <Game mode={mode} />
     </main>
   );

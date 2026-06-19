@@ -18,7 +18,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen flex flex-col items-center px-5 py-16 sm:py-20">
+    <main className="min-h-dvh flex flex-col items-center px-5 py-16 sm:py-20">
       <div className="w-full max-w-md rise">
         <header className="text-center">
           <h1 className="text-[2.6rem] font-bold tracking-tight leading-none">
@@ -46,9 +46,11 @@ export default function Home() {
                     {MODES[key].sub}
                   </span>
                 </p>
-                <p className="text-sm text-[var(--muted)] mt-1">
-                  {MODES[key].blurb}
-                </p>
+                {MODES[key].blurb && (
+                  <p className="text-sm text-[var(--muted)] mt-1">
+                    {MODES[key].blurb}
+                  </p>
+                )}
               </div>
               <div className="text-right shrink-0 pl-4">
                 {highs[key] != null ? (
