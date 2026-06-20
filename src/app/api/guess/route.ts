@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPrompt } from "@/lib/dataset";
-import { matchPlayer, suggestPlayer } from "@/lib/match";
-import { scorePlayer, rankRoster } from "@/lib/scoring";
+import { gradeGuess } from "@/lib/grade";
+import { rankRoster } from "@/lib/scoring";
 import type { GuessResult } from "@/lib/types";
 
 // POST /api/guess  body: { id: string, name: string }
@@ -16,14 +16,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const player = matchPlayer(name ?? "", prompt.roster);
-  if (!player) {
-    const near = suggestPlayer(name ?? "", prompt.roster);
-    if (near) {
+  const grade = gradeGuess(prompt, name ?? "");
+  if (!grade.matched || !grade.player || !grade.breakdown) {
+    if (grade.suggestion) {
       return NextResponse.json({
         valid: false,
-        suggestion: near.name,
-        message: `Did you mean ${near.name}?`,
+        suggestion: grade.suggestion,
+        message: `Did you mean ${grade.suggestion}?`,
       } satisfies GuessResult);
     }
     return NextResponse.json({
@@ -32,15 +31,14 @@ export async function POST(req: NextRequest) {
     } satisfies GuessResult);
   }
 
-  const breakdown = scorePlayer(player);
   const ranked = rankRoster(prompt.roster);
-  const rank = ranked.findIndex((r) => r.name === player.name) + 1;
+  const rank = ranked.findIndex((r) => r.name === grade.player!.name) + 1;
 
   return NextResponse.json({
     valid: true,
     message: "Valid pull!",
-    player: player.name,
-    breakdown,
+    player: grade.player.name,
+    breakdown: grade.breakdown,
     rank,
     rosterSize: prompt.roster.length,
     ranked,
