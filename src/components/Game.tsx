@@ -1,49 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { GuessResult } from "@/lib/types";
 import { MODES, ROUNDS_PER_GAME, type ModeKey } from "@/lib/modes";
 import { tierFor } from "@/lib/tiers";
 import { saveGame, type PlayedRound } from "@/lib/storage";
-import { normalizeName } from "@/lib/match";
 import { ScoreBar } from "./ScoreBar";
+import { PlayerSearchInput } from "./PlayerSearchInput";
 
 interface PromptDTO {
   id: string;
   label: string;
   rosterSize: number;
-}
-
-interface IndexEntry {
-  name: string;
-  terms: string[]; // normalized name + aliases, for matching
-}
-
-// The league-wide name list is the same for every round, so fetch + normalize
-// it once and keep it across rounds and remounts.
-let PLAYER_INDEX: IndexEntry[] | null = null;
-const MAX_SUGGESTIONS = 8;
-
-/** Up to 8 player names matching the query, best matches first. */
-function suggestFrom(index: IndexEntry[], value: string): string[] {
-  const q = normalizeName(value);
-  if (q.length < 2 || index.length === 0) return [];
-  const starts: string[] = []; // full name starts with query
-  const wordStarts: string[] = []; // a name/alias word starts with query
-  const contains: string[] = []; // appears anywhere
-  for (const item of index) {
-    let rank = 3;
-    for (const t of item.terms) {
-      if (t.startsWith(q)) { rank = 0; break; }
-      if (rank > 1 && t.split(" ").some((w) => w.startsWith(q))) rank = 1;
-      else if (rank > 2 && t.includes(q)) rank = 2;
-    }
-    if (rank === 0) starts.push(item.name);
-    else if (rank === 1) wordStarts.push(item.name);
-    else if (rank === 2) contains.push(item.name);
-  }
-  return [...starts, ...wordStarts, ...contains].slice(0, MAX_SUGGESTIONS);
 }
 
 export function Game({ mode }: { mode: ModeKey }) {
@@ -57,16 +26,9 @@ export function Game({ mode }: { mode: ModeKey }) {
   const [finished, setFinished] = useState(false);
   const [isHigh, setIsHigh] = useState(false);
 
-  // Autocomplete over every player in the league (not the roster).
-  const [index, setIndex] = useState<IndexEntry[]>(PLAYER_INDEX ?? []);
-  const [showSuggest, setShowSuggest] = useState(false);
-  const [activeIdx, setActiveIdx] = useState(-1);
-
   const loadRound = useCallback(async () => {
     setResult(null);
     setGuess("");
-    setShowSuggest(false);
-    setActiveIdx(-1);
     setPrompt(null);
     const res = await fetch(`/api/prompt?mode=${mode}`);
     setPrompt(await res.json());
@@ -75,53 +37,6 @@ export function Game({ mode }: { mode: ModeKey }) {
   useEffect(() => {
     loadRound();
   }, [loadRound]);
-
-  // Load the player list once for the typeahead.
-  useEffect(() => {
-    if (PLAYER_INDEX) return;
-    let cancelled = false;
-    fetch("/api/players")
-      .then((r) => r.json())
-      .then((list: { name: string; alt?: string[] }[]) => {
-        PLAYER_INDEX = list.map((p) => ({
-          name: p.name,
-          terms: [normalizeName(p.name), ...(p.alt ?? []).map(normalizeName)],
-        }));
-        if (!cancelled) setIndex(PLAYER_INDEX);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const suggestions = useMemo(
-    () => (showSuggest ? suggestFrom(index, guess) : []),
-    [showSuggest, index, guess],
-  );
-
-  function chooseSuggestion(name: string) {
-    setGuess(name);
-    setShowSuggest(false);
-    setActiveIdx(-1);
-    submitName(name);
-  }
-
-  function onGuessKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (!showSuggest || suggestions.length === 0) return;
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setActiveIdx((i) => Math.min(i + 1, suggestions.length - 1));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setActiveIdx((i) => Math.max(i - 1, -1));
-    } else if (e.key === "Enter" && activeIdx >= 0) {
-      e.preventDefault(); // pick the highlighted name instead of submitting raw text
-      chooseSuggestion(suggestions[activeIdx]);
-    } else if (e.key === "Escape") {
-      setShowSuggest(false);
-    }
-  }
 
   async function submitName(name: string) {
     if (!prompt || !name.trim() || loading || result?.valid) return;
@@ -242,72 +157,15 @@ export function Game({ mode }: { mode: ModeKey }) {
           </p>
         )}
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setShowSuggest(false);
-            submitName(guess);
-          }}
-          className="mt-5 relative"
-          autoComplete="off"
-        >
-          <div className="flex gap-2">
-            <input
-              autoFocus
-              value={guess}
-              onChange={(e) => {
-                setGuess(e.target.value);
-                setShowSuggest(true);
-                setActiveIdx(-1);
-              }}
-              onFocus={() => setShowSuggest(true)}
-              onBlur={() => setShowSuggest(false)}
-              onKeyDown={onGuessKeyDown}
-              placeholder="Name a player…"
-              disabled={!prompt || result?.valid}
-              role="combobox"
-              aria-expanded={suggestions.length > 0}
-              aria-autocomplete="list"
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              className="min-w-0 flex-1 rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 outline-none placeholder:text-neutral-600 focus:border-[var(--accent)]/60 focus:bg-white/[0.07] transition disabled:opacity-50"
-            />
-            <button
-              type="submit"
-              disabled={loading || !prompt || result?.valid}
-              className="btn-accent shrink-0 rounded-xl px-5 py-2.5"
-            >
-              {loading ? "…" : "Guess"}
-            </button>
-          </div>
-
-          {showSuggest && !result?.valid && suggestions.length > 0 && (
-            <ul className="absolute z-20 left-0 right-0 top-full mt-2 max-h-60 overflow-y-auto rounded-xl border border-white/10 bg-neutral-900/95 backdrop-blur shadow-2xl shadow-black/50 py-1">
-              {suggestions.map((name, i) => (
-                <li key={name}>
-                  <button
-                    type="button"
-                    // pointerdown fires before blur, so this keeps focus and registers the pick
-                    onPointerDown={(e) => {
-                      e.preventDefault();
-                      chooseSuggestion(name);
-                    }}
-                    onMouseEnter={() => setActiveIdx(i)}
-                    className={`w-full text-left px-4 py-2 text-sm transition ${
-                      i === activeIdx
-                        ? "bg-white/10 text-white"
-                        : "text-neutral-300 hover:bg-white/5"
-                    }`}
-                  >
-                    {name}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </form>
+        <div className="mt-5">
+          <PlayerSearchInput
+            value={guess}
+            onValueChange={setGuess}
+            onSubmit={submitName}
+            disabled={!prompt || !!result?.valid}
+            loading={loading}
+          />
+        </div>
 
         {!result?.valid && (
           <p className="mt-2 text-xs text-neutral-600">
