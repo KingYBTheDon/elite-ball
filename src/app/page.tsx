@@ -32,7 +32,18 @@ export default function Home() {
           </p>
         </header>
 
-        <div className="mt-10 grid gap-3">
+        <Link
+          href="/daily"
+          className="group card-hover mt-8 flex items-center justify-between rounded-[1.4rem] border border-[var(--accent)]/30 bg-[var(--accent)]/[0.08] backdrop-blur px-6 py-4 hover:border-[var(--accent)]/50 hover:bg-[var(--accent)]/[0.12]"
+        >
+          <div>
+            <p className="font-semibold tracking-tight text-[var(--accent)]">Daily challenges</p>
+            <p className="text-sm text-[var(--muted)] mt-0.5">Five puzzles. New every day.</p>
+          </div>
+          <span className="text-2xl shrink-0 transition group-hover:translate-x-0.5">→</span>
+        </Link>
+
+        <div className="mt-4 grid gap-3">
           {(Object.keys(MODES) as ModeKey[]).map((key) => (
             <Link
               key={key}

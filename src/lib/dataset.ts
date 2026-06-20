@@ -112,6 +112,21 @@ export function promptCount(mode?: ModeKey): number {
   return mode ? poolByMode[mode].length : ids.length;
 }
 
+export interface PromptLite {
+  id: string;
+  label: string;
+  rosterSize: number;
+}
+
+/** Lightweight list of all prompts (optionally for one mode) — for the daily picker. */
+export function listPrompts(mode?: ModeKey): PromptLite[] {
+  const pool = mode ? poolByMode[mode] : ids;
+  return pool.map((id) => {
+    const p = promptCache.get(id)!;
+    return { id, label: p.label, rosterSize: p.roster.length };
+  });
+}
+
 // Flat list of EVERY player (with any aliases) for the typeahead. It spans the
 // whole league on purpose — suggesting from the current roster would reveal the
 // answers, but suggesting from everyone only helps with spelling/recall.
