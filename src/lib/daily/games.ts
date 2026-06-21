@@ -1,6 +1,15 @@
-// Metadata for the five daily challenges. Pure constants — safe on the client.
+// Metadata for the daily challenges. Pure constants — safe on the client.
+// `status` flags where each game stands in the test phase.
 
-export type DailyGameId = "deep-cut" | "dig-deeper" | "slate" | "rare-hunt" | "connect";
+export type DailyGameId =
+  | "dig-deeper"
+  | "chain"
+  | "link"
+  | "deep-cut"
+  | "slate"
+  | "rare-hunt";
+
+export type GameStatus = "favorite" | "new" | "testing" | "cut";
 
 export interface DailyGameMeta {
   id: DailyGameId;
@@ -8,18 +17,12 @@ export interface DailyGameMeta {
   tagline: string;
   emoji: string;
   route: string;
-  accent: string; // tailwind text color for accents
+  accent: string; // tailwind text color
+  status: GameStatus;
 }
 
+// Order = how they appear on the hub (favorites & new first).
 export const DAILY_GAMES: DailyGameMeta[] = [
-  {
-    id: "deep-cut",
-    title: "Daily Deep Cut",
-    tagline: "One matchup, five picks. Go as obscure as you can.",
-    emoji: "🃏",
-    route: "/daily/deep-cut",
-    accent: "text-orange-400",
-  },
   {
     id: "dig-deeper",
     title: "Dig Deeper",
@@ -27,6 +30,34 @@ export const DAILY_GAMES: DailyGameMeta[] = [
     emoji: "⛏️",
     route: "/daily/dig-deeper",
     accent: "text-amber-300",
+    status: "favorite",
+  },
+  {
+    id: "chain",
+    title: "Chain",
+    tagline: "Reorder the players so every neighbour was a teammate.",
+    emoji: "🔗",
+    route: "/daily/chain",
+    accent: "text-violet-300",
+    status: "new",
+  },
+  {
+    id: "link",
+    title: "Link Up",
+    tagline: "Connect two stars through a chain of teammates.",
+    emoji: "🪢",
+    route: "/daily/link",
+    accent: "text-sky-300",
+    status: "new",
+  },
+  {
+    id: "deep-cut",
+    title: "Daily Deep Cut",
+    tagline: "One matchup, five picks. Go as obscure as you can.",
+    emoji: "🃏",
+    route: "/daily/deep-cut",
+    accent: "text-orange-400",
+    status: "testing",
   },
   {
     id: "slate",
@@ -34,7 +65,8 @@ export const DAILY_GAMES: DailyGameMeta[] = [
     tagline: "Five matchups, one pick each.",
     emoji: "📋",
     route: "/daily/slate",
-    accent: "text-sky-300",
+    accent: "text-orange-300",
+    status: "testing",
   },
   {
     id: "rare-hunt",
@@ -42,17 +74,24 @@ export const DAILY_GAMES: DailyGameMeta[] = [
     tagline: "Find the eight most obscure players on one roster.",
     emoji: "🔦",
     route: "/daily/rare-hunt",
-    accent: "text-emerald-300",
-  },
-  {
-    id: "connect",
-    title: "Connect",
-    tagline: "Sort sixteen players into the team they belong to.",
-    emoji: "🧩",
-    route: "/daily/connect",
-    accent: "text-violet-300",
+    accent: "text-neutral-300",
+    status: "cut",
   },
 ];
+
+export const STATUS_LABEL: Record<GameStatus, string> = {
+  favorite: "★ Favorite",
+  new: "New",
+  testing: "Testing",
+  cut: "May be cut",
+};
+
+export const STATUS_STYLE: Record<GameStatus, string> = {
+  favorite: "text-amber-300 bg-amber-300/10 border-amber-300/30",
+  new: "text-violet-300 bg-violet-300/10 border-violet-300/30",
+  testing: "text-neutral-400 bg-white/5 border-white/10",
+  cut: "text-red-300/80 bg-red-400/10 border-red-400/20",
+};
 
 export const gameMeta = (id: DailyGameId): DailyGameMeta =>
   DAILY_GAMES.find((g) => g.id === id)!;

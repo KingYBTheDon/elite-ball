@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { todayKey } from "@/lib/daily/seed";
 import {
-  connectPuzzle,
   deepCutPuzzle,
   digDeeperPuzzle,
   rareHuntPuzzle,
   slatePuzzle,
   RARE_TARGET_COUNT,
 } from "@/lib/daily/puzzles";
+import { chainPuzzle, linkPuzzle } from "@/lib/daily/links";
 
 // Depends on the server date, so never cache.
 export const dynamic = "force-dynamic";
@@ -31,10 +31,14 @@ export function GET(req: NextRequest) {
       // hide the target names — finding them IS the game
       return NextResponse.json({ date, prompt: p.prompt, targetCount: RARE_TARGET_COUNT });
     }
-    case "connect": {
-      const p = connectPuzzle(date);
-      // hide the grouping — only the shuffled tiles go to the client
-      return NextResponse.json({ date, tiles: p.tiles, groupCount: 4, groupSize: 4 });
+    case "chain": {
+      const p = chainPuzzle(date);
+      // hide the solution order — only the shuffled tiles go to the client
+      return NextResponse.json({ date, tiles: p.tiles, length: p.length });
+    }
+    case "link": {
+      const p = linkPuzzle(date);
+      return NextResponse.json({ date, a: p.a, b: p.b, par: p.par });
     }
     default:
       return NextResponse.json({ error: "unknown game" }, { status: 400 });

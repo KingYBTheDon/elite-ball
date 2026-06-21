@@ -8,8 +8,9 @@ import fs from "node:fs";
 import dataset from "@/data/generated/dataset.json";
 import type { Player, Prompt } from "./types";
 import { MODES, type ModeKey } from "./modes";
-import { buildCalibration, rawTotal, setCalibration } from "./scoring";
+import { buildCalibration, rawTotal, scorePlayer, setCalibration } from "./scoring";
 import { ALIASES } from "@/data/aliases";
+import { normalizeName } from "./match";
 
 // Person-level (career-wide) info.
 interface RawPlayer {
@@ -90,6 +91,49 @@ setCalibration(
     [...promptCache.values()].flatMap((p) => p.roster.map(rawTotal)),
   ),
 );
+
+// --- player index + co-occurrence (for the daily "teammate" games) ----------
+// Two players are "linked" if they shared a franchise in the same decade
+// (i.e. appear in the same prompt roster). We also track a display name and a
+// fame proxy (best/lowest obscurity across their stints) per player id.
+const nameById = new Map<string, string>();
+const idByNorm = new Map<string, string>(); // normalized name -> id
+const fameById = new Map<string, number>(); // lower = more famous
+const promptMemberIds: string[][] = [];
+
+for (const rp of rawPrompts) {
+  const prompt = promptCache.get(rp.id)!;
+  const memberIds = rp.roster.map((st) => String(st.id));
+  promptMemberIds.push(memberIds);
+  rp.roster.forEach((st, i) => {
+    const id = String(st.id);
+    const player = prompt.roster[i];
+    nameById.set(id, player.name);
+    const norm = normalizeName(player.name);
+    if (!idByNorm.has(norm)) idByNorm.set(norm, id);
+    for (const alt of ALIASES[id] ?? []) {
+      const an = normalizeName(alt);
+      if (!idByNorm.has(an)) idByNorm.set(an, id);
+    }
+    const ob = scorePlayer(player).total;
+    fameById.set(id, Math.min(fameById.get(id) ?? 1e9, ob));
+  });
+}
+
+export function personName(id: string): string | undefined {
+  return nameById.get(id);
+}
+export function personIdByName(name: string): string | undefined {
+  return idByNorm.get(normalizeName(name));
+}
+/** Best (lowest) obscurity across a player's stints — a fame proxy. */
+export function fameOf(id: string): number {
+  return fameById.get(id) ?? 100;
+}
+/** Each prompt's roster as player-id lists — the edges of the co-occurrence graph. */
+export function allPromptMemberIds(): string[][] {
+  return promptMemberIds;
+}
 
 const decadeYear = (decade: string) => parseInt(decade, 10); // "1990s" -> 1990
 

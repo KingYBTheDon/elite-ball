@@ -43,18 +43,31 @@ export function shareRareHunt(
   return wrap("Rare Hunt", date, `${grid}  ${found}/${total} in ${attempts}`, url);
 }
 
-/** Connect: one row of four squares per guess, coloured by the group guessed. */
-export const CONNECT_COLORS = ["🟪", "🟦", "🟩", "🟨"]; // index = group index
-export function shareConnect(
+export function shareChain(
   date: string,
-  rows: number[][], // each row: four group-indices (or -1 for "no group / mixed")
-  solved: number,
+  length: number,
+  tries: number,
+  solved: boolean,
   url?: string,
 ): string {
-  const grid = rows
-    .map((row) => row.map((g) => (g < 0 ? "⬛" : CONNECT_COLORS[g] ?? "⬛")).join(""))
-    .join("\n");
-  return wrap("Connect", date, `${solved}/4 groups\n${grid}`, url);
+  const bar = (solved ? "🟩" : "⬛").repeat(length - 1);
+  const line = solved
+    ? `${bar}  ${length}-chain in ${tries} ${tries === 1 ? "try" : "tries"}`
+    : `${bar}  gave up`;
+  return wrap("Chain", date, line, url);
+}
+
+export function shareLink(
+  date: string,
+  bridges: number,
+  par: number,
+  solved: boolean,
+  url?: string,
+): string {
+  const body = solved
+    ? `🪢 linked with ${bridges} bridge${bridges === 1 ? "" : "s"} (par ${par})`
+    : "🪢 couldn’t connect";
+  return wrap("Link Up", date, body, url);
 }
 
 export async function copyText(text: string): Promise<boolean> {

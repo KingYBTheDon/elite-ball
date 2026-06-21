@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { DAILY_GAMES } from "@/lib/daily/games";
+import { DAILY_GAMES, STATUS_LABEL, STATUS_STYLE } from "@/lib/daily/games";
 import { getGameState } from "@/lib/daily/storage";
 import { todayKey } from "@/lib/daily/seed";
 
@@ -55,11 +55,16 @@ export default function DailyHub() {
               >
                 <span className="text-2xl shrink-0">{g.emoji}</span>
                 <div className="min-w-0 flex-1">
-                  <p className={`font-semibold tracking-tight ${g.accent}`}>
-                    {g.title}
-                    {row?.doneToday && <span className="ml-2 text-emerald-400 text-sm">✓</span>}
+                  <p className={`font-semibold tracking-tight ${g.accent} flex items-center gap-2`}>
+                    <span className="truncate">{g.title}</span>
+                    {row?.doneToday && <span className="text-emerald-400 text-sm shrink-0">✓</span>}
                   </p>
                   <p className="text-sm text-[var(--muted)] mt-0.5 truncate">{g.tagline}</p>
+                  <span
+                    className={`mt-1.5 inline-block rounded-full border px-2 py-0.5 text-[10px] font-medium ${STATUS_STYLE[g.status]}`}
+                  >
+                    {STATUS_LABEL[g.status]}
+                  </span>
                 </div>
                 <span className="shrink-0 text-right text-sm tabular-nums text-neutral-500 min-w-[3ch]">
                   {row?.streak ? `🔥${row.streak}` : ""}
